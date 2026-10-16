@@ -1,0 +1,31 @@
+# Read-only preview – a second instance next to the running one, on another port, with its own copy of the data.
+# It reads the library from Radarr/Sonarr but never searches, downloads, imports, deletes or sends notifications
+# (READ_ONLY=true). The media library is mounted read-only.
+#
+#   mkdir -p data-preview && cp data/state.json data-preview/   # optional: start from a copy of your data
+#     (copy while the preview is stopped – on shutdown it saves its own state over the file)
+#                                     (stop the preview first – on shutdown it saves its own state over the copy)
+#   docker compose -p updaterr-preview -f docker-compose.preview.yaml up -d --build
+#   docker compose -p updaterr-preview -f docker-compose.preview.yaml down   # clean up
+services:
+  updaterr-preview:
+    build: .
+    image: updaterr:preview
+    container_name: updaterr-preview
+    user: "${PUID:-1000}:${PGID:-1000}"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - TZ=${TZ:-UTC}
+      - READ_ONLY=true
+      # Notifications and the Telegram bot stay with the main instance (two bots on one token would fight)
+      - TELEGRAM_BOT_TOKEN=
+      - NTFY_URL=
+      - PUBLIC_URL=
+    volumes:
+      - ${PREVIEW_DATA_DIR:-./data-preview}:/data
+      - ${MEDIA_HOST_DIR:?Set MEDIA_HOST_DIR in .env}:${MEDIA_DIR:?Set MEDIA_DIR in .env}:ro
+    ports:
+      - ${UPDATERR_BIND:-0.0.0.0}:${PREVIEW_PORT:-5291}:8080
+    init: true

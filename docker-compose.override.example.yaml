@@ -1,0 +1,18 @@
+# Template for docker-compose.override.yaml (copy and edit) – things that depend on your server.
+services:
+  updaterr:
+    volumes:
+      # Read API keys straight from Radarr/Sonarr config.xml (instead of RADARR_API_KEY / SONARR_API_KEY in .env)
+      - /path/to/radarr/config.xml:/arr/radarr.xml:ro
+      - /path/to/sonarr/config.xml:/arr/sonarr.xml:ro
+    environment:
+      - RADARR_CONFIG=/arr/radarr.xml
+      - SONARR_CONFIG=/arr/sonarr.xml
+    # The Docker network Radarr/Sonarr/qBittorrent run in (then URLs like http://radarr:7878 work)
+    networks:
+      - arr
+
+networks:
+  arr:
+    name: my-arr-network   # see: docker network ls
+    external: true

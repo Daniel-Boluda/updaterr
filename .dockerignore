@@ -1,0 +1,8 @@
+.git
+data
+data-*
+test
+.env
+.env.*
+docker-compose*.yaml
+*.md

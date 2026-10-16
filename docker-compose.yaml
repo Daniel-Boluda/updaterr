@@ -1,0 +1,23 @@
+# Updaterr – base deployment. Everything environment-specific (addresses, paths, port) lives in .env
+# (template: .env.example). Server-specific additions (Docker networks, GPU, Radarr/Sonarr config.xml) go to
+# docker-compose.override.yaml, which Docker Compose loads automatically (template: docker-compose.override.example.yaml).
+services:
+  updaterr:
+    build: .
+    image: updaterr:latest
+    container_name: ${CONTAINER_NAME:-updaterr}
+    user: "${PUID:-1000}:${PGID:-1000}"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ${DATA_HOST_DIR:-./data}:/data
+      # The media library under the SAME path as in Radarr/Sonarr/qBittorrent (MEDIA_DIR) – needed for
+      # audio track merging, dub sync checks and spoken-language detection
+      - ${MEDIA_HOST_DIR:?Set MEDIA_HOST_DIR in .env}:${MEDIA_DIR:?Set MEDIA_DIR in .env}
+    ports:
+      - ${UPDATERR_BIND:-0.0.0.0}:${UPDATERR_PORT:-5290}:8080
+    init: true
+    restart: unless-stopped

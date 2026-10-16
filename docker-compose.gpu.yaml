@@ -1,0 +1,10 @@
+# Optional: speech recognition (whisper.cpp) on the GPU via Vulkan.
+#   docker compose -f docker-compose.yaml -f docker-compose.gpu.yaml up -d
+# VIDEO_GID = the host group owning /dev/dri/* (getent group video, or stat -c %g /dev/dri/renderD128).
+# The image ships the AMD Vulkan driver (mesa-vulkan-ati); without a GPU the CPU does the work.
+services:
+  updaterr:
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "${VIDEO_GID:-44}"

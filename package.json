@@ -1,0 +1,15 @@
+{
+  "name": "updaterr",
+  "version": "1.0.0",
+  "description": "Finds better-dubbed versions of your Radarr/Sonarr library (any dub language + original, then quality) and offers them for download",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}
