@@ -41,6 +41,7 @@ const DEFAULT_SETTINGS = {
   qbitStallMin: 30,           // bez spojení tak dlouho → zastavit
   qbitStallRetryMin: 120,     // zastavené po takové době znovu spustit a zkusit, jestli už jdou stáhnout
   forceImport: true,          // Radarr/Sonarr odmítne import "není upgrade" → importovat ručně
+  qbitRemoveImported: true,   // po importu smazat torrent z qBittorrentu i se soubory (cleanup.js) – vypnout = seedovat
   notifyProposals: true,
   notifyDownloads: true,
   // Slučování stop: stáhnout jen chybějící jazyk a přidat ho do stávajícího souboru

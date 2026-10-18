@@ -218,6 +218,14 @@ zmizí, když dál stojí, po `qbitStallMin` se zastaví znovu. Vynucené (force
 se nechávají být. Po vypnutí se zastavené torrenty spustí a štítek se sundá. Vlastní pravidlo pro mrtvé
 torrenty (`stallHours`, pak další kandidát) platí dál, zastavení ho neovlivní.
 
+### Úklid torrentů po importu
+
+Nastavení → Stahování a import → *Po importu smazat torrent* (`qbitRemoveImported`, výchozí zapnuto). Jakmile
+je upgrade stažený přes Radarr/Sonarr naimportovaný, Updaterr jeho torrent smaže z qBittorrentu **i se staženými
+soubory** – v knihovně zůstává importovaná kopie (hardlink nebo kopie). Týká se jen torrentů ze stahování
+Updaterru (párují se podle hashe). Limit seedování v qBittorrentu neplatí pro vynucené torrenty (Force start),
+ty by jinak seedovaly navždy. Kdo chce seedovat (sdílecí poměr na privátních trackerech), nastavení vypne.
+
 ### Notifikační centrum
 
 Zvonek v horní liště webu. Sbírá stejné události jako Telegram/ntfy – **i když Telegram ani ntfy nastavené

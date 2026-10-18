@@ -390,6 +390,11 @@
     "one": "qBittorrent: restarted {count} stopped torrent – checking whether it can be downloaded now",
     "other": "qBittorrent: restarted {count} stopped torrents – checking whether they can be downloaded now"
   },
+  "cleanup.removed": {
+    "one": "qBittorrent: deleted {count} imported torrent – {names}",
+    "other": "qBittorrent: deleted {count} imported torrents – {names}"
+  },
+  "cleanup.andMore": " and {count} more",
   "server.err.tooLarge": "Request too large",
   "server.settingsSaved": "Settings saved",
   "server.watchOn": "{what}: watching enabled",
@@ -440,6 +445,7 @@
   "server.listeningReadOnly": "Updaterr is running on port {port} (preview – read only)",
   "server.backupCleanup": "Backup cleanup: {error}",
   "server.stallError": "qBittorrent (stalled torrents): {error}",
+  "server.cleanupError": "qBittorrent (cleanup after import): {error}",
   "server.unhandledRejection": "Unhandled error: {error}",
   "server.uncaughtException": "Uncaught exception: {error}",
   "server.stateLoadFailed": "state.json could not be loaded ({error}), moved to {path}",

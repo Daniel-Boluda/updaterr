@@ -652,6 +652,7 @@ class Searcher {
   }
 
   eligible() {
+    if (!L.primary()) return []; // bez jazyka se knihovna neprochází
     const { store } = this.ctx;
     const st = store.settings;
     const now = Date.now();

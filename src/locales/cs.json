@@ -405,6 +405,13 @@
     "few": "qBittorrent: znovu spuštěno {count} zastavených torrentů – zkouší se, jestli už jdou stáhnout",
     "other": "qBittorrent: znovu spuštěno {count} zastavených torrentů – zkouší se, jestli už jdou stáhnout"
   },
+  "cleanup.removed": {
+    "one": "qBittorrent: smazán {count} naimportovaný torrent – {names}",
+    "few": "qBittorrent: smazány {count} naimportované torrenty – {names}",
+    "many": "qBittorrent: smazáno {count} naimportovaných torrentů – {names}",
+    "other": "qBittorrent: smazáno {count} naimportovaných torrentů – {names}"
+  },
+  "cleanup.andMore": " a dalších {count}",
   "server.err.tooLarge": "Příliš velký požadavek",
   "server.settingsSaved": "Nastavení uloženo",
   "server.watchOn": "{what}: hlídání zapnuto",
@@ -457,6 +464,7 @@
   "server.listeningReadOnly": "Updaterr běží na portu {port} (náhled – jen čtení)",
   "server.backupCleanup": "Úklid záloh: {error}",
   "server.stallError": "qBittorrent (zaseknuté torrenty): {error}",
+  "server.cleanupError": "qBittorrent (úklid po importu): {error}",
   "server.unhandledRejection": "Neošetřená chyba: {error}",
   "server.uncaughtException": "Neošetřená výjimka: {error}",
   "server.stateLoadFailed": "state.json nešlo načíst ({error}), přesunuto do {path}",

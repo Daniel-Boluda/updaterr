@@ -16,6 +16,7 @@ const speech = require('./speech');
 const gpu = require('./gpu');
 const { QbitClient } = require('./qbit');
 const { StallGuard } = require('./stalled');
+const { TorrentCleanup } = require('./cleanup');
 const { Notifier } = require('./notify');
 const { Inbox } = require('./inbox');
 const { attachJobs } = require('./jobs');
@@ -62,6 +63,7 @@ ctx.merger = new Merger(ctx);
 ctx.dubsync = new DubSync(ctx);
 ctx.langChecker = new LC.LangChecker(ctx);
 ctx.stallGuard = new StallGuard(ctx);
+ctx.torrentCleanup = new TorrentCleanup(ctx);
 ctx.backups = new Backups(ctx);
 
 attachJobs(ctx);
@@ -609,6 +611,7 @@ async function main() {
   setTimeout(backupsTick, 2 * 60e3);
   setInterval(backupsTick, 10 * 60e3);
   setInterval(() => ctx.stallGuard.tick().catch((e) => store.log('error', I18N.t('server.stallError', { error: e.message }))), 60_000);
+  setInterval(() => ctx.torrentCleanup.tick().catch((e) => store.log('error', I18N.t('server.cleanupError', { error: e.message }))), 2 * 60e3);
   // Vyřízené návrhy a staré záznamy po 60 dnech pryč
   setInterval(() => {
     const cutoff = Date.now() - 60 * 86400e3;

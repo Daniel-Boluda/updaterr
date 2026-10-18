@@ -15,6 +15,9 @@ const { t } = require('./i18n');
 
 const FRESH_MS = 20 * 60e3;            // výsledky hledání starší než tohle před stažením ověříme znovu
 const UPGRADE_REJECTION = /upgrade|cutoff|existing (movie |episode )?file|custom format/i;
+// Název souboru nejde rozparsovat (třeba překlep v roce) – film Radarr zná podle downloadId, chybí jen kvalita
+const PARSE_REJECTION = /unable to parse/i;
+const VIDEO_EXT = /\.(mkv|mp4|m4v|avi|ts|m2ts|wmv|mov|mpe?g)$/i;
 const GONE = new Set(['failed', 'dismissed']);
 
 const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -321,6 +324,8 @@ class Downloads {
           store.log('warn', t('download.stillBlocked', { label: d.label, message: part.message }));
           notify.download(d, 'blocked').catch(() => {});
         }
+        // Občas zkusit znovu – soubor mohl někdo přejmenovat nebo se změnila pravidla importu
+        if (st.forceImport && now - part.forceImportAt > 6 * 3600e3) await this.forceImport(d, part);
       }
       if (part.state === 'dismissed') inQueue--;
     }
@@ -426,14 +431,17 @@ class Downloads {
     part.forceImportAt = Date.now();
     const client = this.client(d.app);
     const list = await client.manualImportList(part.downloadId);
-    const usable = list.filter((f) => {
+    const unparsed = (f) => d.app === 'radarr' && reasons(f).some((r) => PARSE_REJECTION.test(r));
+    let usable = list.filter((f) => {
       const rs = reasons(f);
-      if (rs.length && !rs.every((r) => UPGRADE_REJECTION.test(r))) return false;
-      if (d.app === 'radarr') return f.movie?.id === d.arrId;
+      if (rs.length && !rs.every((r) => UPGRADE_REJECTION.test(r) || (unparsed(f) && PARSE_REJECTION.test(r)))) return false;
+      if (d.app === 'radarr') return f.movie?.id === d.arrId && (!unparsed(f) || VIDEO_EXT.test(f.path));
       if (f.series?.id !== d.arrId || !f.episodes?.length) return false;
       // z balíku více sérií jen série, které nahrazujeme
       return !d.seasons || f.episodes.every((e) => d.seasons.includes(e.seasonNumber));
     });
+    // U nerozparsovaného názvu nepoznáme ani ukázku (sample) – film je jen ten největší soubor
+    if (usable.some(unparsed)) usable = [usable.reduce((a, f) => ((f.size || 0) > (a.size || 0) ? f : a))];
     if (!usable.length) {
       if (Object.keys(await this.changedTargets(d)).length) {
         await this.dismiss(d, part, t('download.importedWhatCould'));
@@ -451,7 +459,10 @@ class Downloads {
       return;
     }
     const files = usable.map((f) => {
-      const base = { path: f.path, quality: f.quality, languages: f.languages, releaseGroup: f.releaseGroup, downloadId: part.downloadId, indexerFlags: f.indexerFlags || 0 };
+      // Kvalitu/jazyky, které Radarr z názvu nevyčetl, doplnit podle stahovaného release
+      const quality = f.quality?.quality ? f.quality : d.candidate?.arr?.quality;
+      const languages = f.languages?.length ? f.languages : d.candidate?.arr?.languages || [];
+      const base = { path: f.path, quality, languages, releaseGroup: f.releaseGroup, downloadId: part.downloadId, indexerFlags: f.indexerFlags || 0 };
       return d.app === 'radarr'
         ? { ...base, movieId: d.arrId }
         : { ...base, seriesId: d.arrId, episodeIds: f.episodes.map((e) => e.id), releaseType: f.releaseType };

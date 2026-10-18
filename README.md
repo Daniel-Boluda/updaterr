@@ -183,6 +183,14 @@ Settings → Downloads → *qBittorrent queue* (off by default). Applies to **al
 a torrent stalled without peers for longer than `qbitStallMin` is stopped and tagged `updaterr-stalled`
 to free the queue, and retried every `qbitStallRetryMin`.
 
+### Torrent cleanup after import
+
+Settings → Download and import → *Delete torrent after import* (`qbitRemoveImported`, on by default). Once an
+upgrade grabbed through Radarr/Sonarr is imported, Updaterr deletes its torrent from qBittorrent **including the
+downloaded files** – the library keeps the imported copy (hardlink or copy). Only torrents from Updaterr's own
+downloads are touched (matched by hash). qBittorrent's seeding limit doesn't apply to force-started torrents, so
+they would otherwise seed forever. Turn it off if you want to seed (ratio on private trackers).
+
 ### Notification center
 
 The bell in the top bar collects the same events as Telegram/ntfy – **even without Telegram or ntfy configured**:

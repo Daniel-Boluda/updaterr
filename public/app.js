@@ -187,6 +187,7 @@ function renderPulse() {
   let dot = 'ok';
   let text;
   if (!ov.radarr && !ov.sonarr) { dot = 'err'; text = esc(t('pulse.noArr')); }
+  else if (ov.setupNeeded) { dot = 'off'; text = esc(t('pulse.setup')); }
   else if (ov.searchingNow) { dot = 'busy'; text = t('pulse.searching', { name: `<b>${esc(ov.searchingNow)}</b>` }); }
   else if (!ov.scannerEnabled) { dot = 'off'; text = esc(t('pulse.scanOff')); }
   else if (ov.queue + ov.manualQueue === 0) text = esc(t('pulse.allChecked'));
@@ -335,7 +336,12 @@ function renderProposals() {
   const ov = S.ov || {};
 
   let body;
-  if (!pending.length) {
+  if (!pending.length && ov.setupNeeded) {
+    body = `<div class="card empty">${icon('mic', 'xl')}
+      <h3>${t('proposals.setup.title')}</h3>
+      <p>${t('proposals.setup.text')}</p>
+      <button class="btn primary" data-act="tab" data-tab="settings">${icon('settings')}${t('proposals.setup.button')}</button></div>`;
+  } else if (!pending.length) {
     const eta = ov.queue ? Math.round((ov.queue * (S.settings?.settings?.searchIntervalSec || 90)) / 3600) : 0;
     body = `<div class="card empty">${icon('inbox', 'xl')}
       <h3>${t('proposals.empty.title')}</h3>
@@ -360,7 +366,7 @@ function renderProposals() {
     <div class="page-head">
       <div>
         <h1>${t('proposals.title')}</h1>
-        <p>${t('proposals.lead', { order: `<b>${esc(TIER[3])}</b> › <b>${esc(LANG.P)}</b> › <b>${esc(LANG.S)}</b>` })}</p>
+        <p>${ov.setupNeeded ? t('proposals.leadSetup') : t('proposals.lead', { order: `<b>${esc(TIER[3])}</b> › <b>${esc(LANG.P)}</b> › <b>${esc(LANG.S)}</b>` })}</p>
       </div>
       ${pending.length ? `<div class="segmented" role="group" aria-label="${t('proposals.filterLabel')}">
         ${[['all', t('common.all'), pending.length], ['language', t('common.language'), n('language')], ['merge', t('proposals.filter.merge'), n('merge')], ['quality', t('common.quality'), n('quality')], ['codec', t('proposals.filter.codec'), n('codec')]]
@@ -1194,6 +1200,7 @@ const SETTINGS_UI = [
       ] },
       { title: t('settings.download.group.import'), fields: [
         { k: 'forceImport', label: t('settings.field.forceImport.label'), help: t('settings.field.forceImport.help'), warn: true },
+        { k: 'qbitRemoveImported', label: t('settings.field.qbitRemoveImported.label'), help: t('settings.field.qbitRemoveImported.help'), need: 'qbit' },
       ] },
     ] },
   { id: 'merge', icon: 'merge', title: t('settings.merge.title'), nav: t('settings.merge.nav'), lead: t('settings.merge.lead'),

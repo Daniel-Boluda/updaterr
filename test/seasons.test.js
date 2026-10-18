@@ -235,3 +235,32 @@ test('sada epizod – jen hledané jazyky', () => {
   assert.strictEqual(set.tier, 2);
   assert.strictEqual(set.notes[0], 'epizody E01 · E02 už CZ má');
 });
+
+test('vynucený import filmu s nerozparsovatelným názvem – kvalita a jazyky z release', async () => {
+  const calls = [];
+  const quality = { quality: { id: 9, name: 'HDTV-1080p' }, revision: { version: 1 } };
+  const languages = [{ id: 25, name: 'Czech' }, { id: 1, name: 'English' }];
+  const radarr = {
+    manualImportList: async () => [
+      { path: '/d/Barbie (20023) [1080p].mkv', size: 8e9, movie: { id: 534 }, rejections: [{ reason: 'Unable to parse file', type: 'permanent' }] },
+      { path: '/d/sample (20023).mkv', size: 5e7, movie: { id: 534 }, rejections: [{ reason: 'Unable to parse file', type: 'permanent' }] },
+      { path: '/d/Barbie (20023).nfo', size: 1e3, movie: { id: 534 }, rejections: [{ reason: 'Unable to parse file', type: 'permanent' }] },
+    ],
+    command: async (body) => calls.push(body),
+  };
+  const ctx = { store: { settings: { ...DEFAULT_SETTINGS }, s: { items: {} }, log: () => {} }, radarr, sonarr: {}, notify: { download: async () => {} } };
+  const dl = new Downloads(ctx);
+  const d = { app: 'radarr', arrId: 534, label: 'Barbie (2023)', itemKey: 'radarr:534', candidate: { arr: { quality, languages } } };
+  const part = { downloadId: 'HASH' };
+  await dl.forceImport(d, part);
+  assert.strictEqual(calls.length, 1);
+  assert.deepStrictEqual(calls[0].files.map((f) => f.path), ['/d/Barbie (20023) [1080p].mkv'], 'jen hlavní video, ne sample/nfo');
+  assert.deepStrictEqual(calls[0].files[0].quality, quality);
+  assert.deepStrictEqual(calls[0].files[0].languages, languages);
+  assert.strictEqual(calls[0].files[0].movieId, 534);
+
+  // jiný film → nic se nevynutí
+  calls.length = 0;
+  await dl.forceImport({ ...d, arrId: 1 }, { downloadId: 'HASH' });
+  assert.strictEqual(calls.length, 0);
+});
