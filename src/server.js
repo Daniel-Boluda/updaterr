@@ -218,6 +218,7 @@ route('PUT', '/api/settings', async (req) => {
     if (typeof def === 'number') { const n = Number(v); if (Number.isFinite(n) && n >= 0) store.settings[k] = n; }
     else if (typeof def === 'boolean') store.settings[k] = Boolean(v);
     else if (k === 'speechModel' && !['base', 'small'].includes(v)) continue;
+    else if (k === 'mode' && !['full', 'audio'].includes(v)) continue;
     else if (k === 'autoWatchNew' && !['off', 'auto', 'ask'].includes(v)) continue;
     else store.settings[k] = String(v);
   }

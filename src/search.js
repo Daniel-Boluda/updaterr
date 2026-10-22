@@ -326,8 +326,10 @@ function evaluateReleases(item, releases, ctx, { siblings } = {}) {
   return { candidates: rank(out, wantCodec), multi: rank(multi, wantCodec), merges, stats };
 }
 
-// Pořadí v návrhu: sloučení stop napřed, když náhrada celého souboru cíl nesplní nebo zhorší obraz
-function arrange(main, merges) {
+// Pořadí v návrhu: sloučení stop napřed, když náhrada celého souboru cíl nesplní nebo zhorší obraz.
+// Režim 'audio' nabízí jen sloučení stop – výměna souboru by přišla o jazyky, které nastavení nesleduje.
+function arrange(main, merges, mode = 'full') {
+  if (mode === 'audio') return merges;
   if (!merges.length) return main;
   const best = main[0];
   const mergeFirst = !best || best.tier < 3 || lowerRes(best);
@@ -562,10 +564,10 @@ async function searchItem(ctx, item, { reason = t('search.reason.schedule'), sil
       store.log('warn', t('search.langCheckFailed', { label: itemLabel(item), error: e.message }));
     }
   }
-  let top = arrange(candidates.slice(0, st.candidatesPerProposal), merges);
+  let top = arrange(candidates.slice(0, st.candidatesPerProposal), merges, st.mode);
 
-  // Žádný balík → zkusit sadu jednotlivých epizod
-  if (item.app === 'sonarr' && st.episodeSets && !candidates.length && !multi.length && !merges.length) {
+  // Žádný balík → zkusit sadu jednotlivých epizod (jen v režimu 'full' – sada je kompletní stažení)
+  if (item.app === 'sonarr' && st.episodeSets && st.mode !== 'audio' && !candidates.length && !multi.length && !merges.length) {
     try {
       const set = await findEpisodeSet(ctx, item, releases);
       if (set) top = [set];
@@ -580,7 +582,8 @@ async function searchItem(ctx, item, { reason = t('search.reason.schedule'), sil
   item.lastResult = { found: top.length + multi.length, bestTier: bestTier >= 0 ? bestTier : null, stats, ms: Date.now() - t0 };
 
   const label = itemLabel(item);
-  const groupProposal = item.app === 'sonarr' ? upsertGroupProposal(ctx, item, multi, { reason, silent }) : null;
+  // Balíky více sérií jsou kompletní stažení – v režimu 'audio' se nenabízí
+  const groupProposal = item.app === 'sonarr' && st.mode !== 'audio' ? upsertGroupProposal(ctx, item, multi, { reason, silent }) : null;
   const existing = Object.values(store.s.proposals).find((p) => p.itemKey === item.key && !p.groupKey && p.status === 'pending');
 
   if (!top.length) {
@@ -713,5 +716,5 @@ class Searcher {
 module.exports = {
   Searcher, searchItem, evaluateReleases, evaluateEpisodeSet, fetchReleases, itemNeeds, itemLabel, seasonLabel,
   combineCurrent, rejectProposal, reopenProposal, proposalKeys, groupKeyOf, HARD_REJECT, rejectionsOf, isLocalIndexer,
-  candId, resolveCandidate, lowerRes,
+  candId, resolveCandidate, lowerRes, arrange,
 };

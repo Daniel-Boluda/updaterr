@@ -46,6 +46,9 @@ const DEFAULT_SETTINGS = {
   notifyDownloads: true,
   // Slučování stop: stáhnout jen chybějící jazyk a přidat ho do stávajícího souboru
   mergeEnabled: true,
+  // Režim hledání: 'full' = sloučení stop i výměna celých souborů (výchozí),
+  // 'audio' = jen přidávání zvukových stop – video se nikdy nesměňuje
+  mode: 'full',
   mergePrimaryDefault: true,  // přidaná stopa v primárním jazyce jako výchozí
   mergeMaxDonorGB: 20,        // max. velikost "donoru" u filmu (u seriálů platí max. na epizodu)
   mergeSaveData: false,       // šetřit data: u přidání zvuku vyhrává nejmenší vhodný donor

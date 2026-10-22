@@ -91,6 +91,8 @@ function recheckMs(store, item) {
 function autoAllowed(store, item, cand) {
   const st = store.settings;
   if (!cand || cand.set) return false;
+  // Režim 'audio': bez ptaní jen sloučení stop (video zůstává, jazyky souboru se neztratí)
+  if (st.mode === 'audio' && cand.kind !== 'merge') return false;
   const watched = watchOf(store, item)?.auto;
   // Novější formát videa stahuje sám jen hlídaná položka s automatickým upgradem, ne nastavení celé knihovny
   if (cand.kind === 'codec' && !watched) return false;
