@@ -1207,6 +1207,10 @@ const SETTINGS_UI = [
     master: { k: 'mergeEnabled', label: t('settings.field.mergeEnabled.label'), help: t('settings.field.mergeEnabled.help'), need: 'qbit' },
     groups: [
       { fields: [
+        { k: 'mode', label: t('settings.field.mode.label'), help: t('settings.field.mode.help'), kind: 'choice', options: [
+          ['full', t('settings.field.mode.opt.full'), t('settings.field.mode.opt.full.help')],
+          ['audio', t('settings.field.mode.opt.audio'), t('settings.field.mode.opt.audio.help')],
+        ] },
         { k: 'mergePrimaryDefault', label: t('settings.field.mergePrimaryDefault.label', LP), dep: 'mergeEnabled' },
         { k: 'mergeMaxDonorGB', label: t('settings.field.mergeMaxDonorGB.label'), help: t('settings.field.mergeMaxDonorGB.help'), unit: 'GB', min: 1, dep: 'mergeEnabled' },
         { k: 'mergeSaveData', label: t('settings.field.mergeSaveData.label'), help: t('settings.field.mergeSaveData.help'), dep: 'mergeEnabled' },
